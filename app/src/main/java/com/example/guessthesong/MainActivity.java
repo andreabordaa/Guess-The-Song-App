@@ -1,6 +1,5 @@
 package com.example.guessthesong;
 
-import android.app.ComponentCaller;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,7 +14,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.spotify.sdk.android.auth.AuthorizationResponse;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LoginFragment.LoginListener, CreateAccountFragment.CreateAccountListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,8 +28,8 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        //shows the welcome fragment once the app is opened
-        getSupportFragmentManager().beginTransaction().replace(R.id.main, new WelcomeFragment()).commit();
+        //shows the login fragment once the app is opened
+        getSupportFragmentManager().beginTransaction().replace(R.id.main, new LoginFragment()).commit();
     }
 
     @Override
@@ -47,5 +46,19 @@ public class MainActivity extends AppCompatActivity {
                 welcomeFragment.handleAuthResponse(response);
             }
         }
+    }
+
+    @Override
+    public void gotoWelcome() {
+        Log.d("demo", "go to welcome screen");
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.main, new WelcomeFragment()).addToBackStack(null).commit();
+    }
+
+    @Override
+    public void gotoCreateAccount() {
+        Log.d("demo", "go to create account screen");
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.main, new CreateAccountFragment()).addToBackStack(null).commit();
     }
 }
