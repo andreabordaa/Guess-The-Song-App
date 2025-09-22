@@ -1,6 +1,6 @@
 package com.example.guessthesong;
 
-import android.content.Intent;
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -13,12 +13,18 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.guessthesong.databinding.FragmentWelcomeBinding;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.spotify.sdk.android.auth.AuthorizationClient;
 import com.spotify.sdk.android.auth.AuthorizationRequest;
 import com.spotify.sdk.android.auth.AuthorizationResponse;
 
 public class WelcomeFragment extends Fragment {
     FragmentWelcomeBinding binding;
+    WelcomeListener listener;
+    FirebaseAuth mAuth;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     public WelcomeFragment() {
         // Required empty public constructor
@@ -42,13 +48,23 @@ public class WelcomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Log.d("demo", "Welcome Fragment inflated ");
 
+        //Opens browser for Spotify Login
         binding.button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d("demo", "Redirecting to Spotify Login ");
                 goToSpotifyLogin();
+            }
+        });
+
+        //Redirects user back to login fragment
+        binding.logoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("demo", "Logging user out");
+                listener.logout();
+
             }
         });
     }
@@ -57,6 +73,10 @@ public class WelcomeFragment extends Fragment {
         if (response.getType() == AuthorizationResponse.Type.CODE) {
             Log.d("demo", "Spotify API Token: " + response.getCode());
         }
+
+        mAuth = FirebaseAuth.getInstance();
+        DocumentReference spotifyUser = db.collection("spotifyUsers").document(mAuth.getUid());
+        spotifyUser.update("spotifyToken", response.getCode());
     }
 
 
@@ -66,6 +86,16 @@ public class WelcomeFragment extends Fragment {
 
         AuthorizationRequest request = builder.build();
         AuthorizationClient.openLoginInBrowser(getActivity(), request);
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        listener = (WelcomeListener) context;
+    }
+
+    public interface WelcomeListener {
+        void logout();
     }
 
 }

@@ -15,15 +15,20 @@ import android.widget.Toast;
 
 import com.example.guessthesong.databinding.FragmentLoginBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 //this page will collect the information given from the user and save it in firebase to login to app account
 
 public class LoginFragment extends Fragment {
     FragmentLoginBinding binding;
     LoginListener listener;
+    FirebaseAuth mAuth;
 
     public LoginFragment() {
         // Required empty public constructor
@@ -62,12 +67,27 @@ public class LoginFragment extends Fragment {
                 } else if (password.isEmpty()) {
                     Toast.makeText(getActivity(), "Enter password", Toast.LENGTH_SHORT).show();
                 } else {
-
-                    FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password).addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
+                    mAuth = FirebaseAuth.getInstance();
+                    mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
-                                listener.gotoWelcome();
+                                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                                DocumentReference user = db.collection("spotifyUsers").document(mAuth.getUid());
+                                user.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                        String spotifyToken = documentSnapshot.getString("spotifyToken");
+                                        //if user doesn't have spotify token saved, then redirect to welcome fragment
+                                        if (spotifyToken == null || spotifyToken.isEmpty()) {
+                                            listener.gotoWelcome();
+                                        } else {
+                                            listener.gotoPlaylists();
+                                        }
+                                    }
+                                });
+
+                                //else -> redirect to playlist view fragment
                             } else {
                                 Toast.makeText(getActivity(), "Incorrect Email/Password", Toast.LENGTH_SHORT).show();
                             }
@@ -94,6 +114,7 @@ public class LoginFragment extends Fragment {
 
     public interface LoginListener {
         void gotoWelcome();
+        void gotoPlaylists();
         void gotoCreateAccount();
     }
 }

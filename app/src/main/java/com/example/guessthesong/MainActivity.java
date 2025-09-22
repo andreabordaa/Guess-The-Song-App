@@ -12,9 +12,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.spotify.sdk.android.auth.AuthorizationResponse;
 
-public class MainActivity extends AppCompatActivity implements LoginFragment.LoginListener, CreateAccountFragment.CreateAccountListener {
+public class MainActivity extends AppCompatActivity implements LoginFragment.LoginListener, CreateAccountFragment.CreateAccountListener, WelcomeFragment.WelcomeListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +30,9 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.Log
         });
 
         //shows the login fragment once the app is opened
-        getSupportFragmentManager().beginTransaction().replace(R.id.main, new LoginFragment()).commit();
+        getSupportFragmentManager().beginTransaction().add(R.id.main, new LoginFragment()).commit();
+
+
     }
 
     @Override
@@ -56,9 +59,27 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.Log
     }
 
     @Override
+    public void goBack() {
+        Log.d("demo", "go back to login fragment ");
+        getSupportFragmentManager().popBackStack();
+    }
+
+    @Override
+    public void gotoPlaylists() {
+        Log.d("demo", "go to playlist grid view ");
+        getSupportFragmentManager().beginTransaction().replace(R.id.main, new PlaylistViewFragment()).commit();
+    }
+
+    @Override
     public void gotoCreateAccount() {
         Log.d("demo", "go to create account screen");
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.main, new CreateAccountFragment()).addToBackStack(null).commit();
+    }
+
+    @Override
+    public void logout() {
+        FirebaseAuth.getInstance().signOut();
+        getSupportFragmentManager().beginTransaction().replace(R.id.main, new LoginFragment()).commit();
     }
 }

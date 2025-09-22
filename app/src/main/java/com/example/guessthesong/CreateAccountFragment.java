@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,15 +16,23 @@ import android.widget.Toast;
 import com.example.guessthesong.databinding.FragmentCreateAccountBinding;
 import com.example.guessthesong.databinding.FragmentLoginBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 //Saves the new user's info and stores in firebase
 
 public class CreateAccountFragment extends Fragment {
     FragmentCreateAccountBinding binding;
     CreateAccountListener listener;
+    FirebaseAuth mAuth;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     public CreateAccountFragment() {
         // Required empty public constructor
@@ -59,11 +68,30 @@ public class CreateAccountFragment extends Fragment {
                 } else if (password.isEmpty()) {
                     Toast.makeText(getActivity(), "Enter Password", Toast.LENGTH_SHORT).show();
                 } else {
-                    FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password).addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
+                    mAuth = FirebaseAuth.getInstance();
+                    mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
-                                //directs user to welcome fragment
+                                //saves new user to firebase database
+                                Log.d("demo", "onComplete: " + mAuth.getUid());
+                                Map<String, Object> newUser = new HashMap<>();
+                                newUser.put("email", mAuth.getCurrentUser().getEmail());
+                                newUser.put("spotifyToken", "");
+                                db.collection("spotifyUsers").document(mAuth.getUid()).set(newUser)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void unused) {
+                                                Log.d("demo", "user successfully added to database ");
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Log.d("demo", "error");
+                                            }
+                                        });
+                                //redirects user to welcome fragment
                                 listener.gotoWelcome();
                             } else {
                                 Toast.makeText(getActivity(), "Incorrect Email/Password (PW must contain at least 6 chars", Toast.LENGTH_SHORT).show();
@@ -71,6 +99,13 @@ public class CreateAccountFragment extends Fragment {
                         }
                     });
                 }
+            }
+        });
+
+        binding.cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.goBack();
             }
         });
     }
@@ -83,5 +118,6 @@ public class CreateAccountFragment extends Fragment {
 
     public interface CreateAccountListener {
         void gotoWelcome();
+        void goBack();
     }
 }
