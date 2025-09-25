@@ -77,17 +77,17 @@ public class LoginFragment extends Fragment {
                                 user.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                                     @Override
                                     public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                        String spotifyToken = documentSnapshot.getString("spotifyToken");
+                                        String refreshToken = documentSnapshot.getString("refreshToken");
                                         //if user doesn't have spotify token saved, then redirect to welcome fragment
-                                        if (spotifyToken == null || spotifyToken.isEmpty()) {
+                                        if (refreshToken == null || refreshToken.isEmpty()) {
                                             listener.gotoWelcome();
                                         } else {
+                                            //TODO: do API POST to refresh spotify access token
                                             listener.gotoPlaylists();
                                         }
                                     }
                                 });
-
-                                //else -> redirect to playlist view fragment
+                            //else -> redirect to playlist view fragment
                             } else {
                                 Toast.makeText(getActivity(), "Incorrect Email/Password", Toast.LENGTH_SHORT).show();
                             }

@@ -77,7 +77,7 @@ public class CreateAccountFragment extends Fragment {
                                 Log.d("demo", "onComplete: " + mAuth.getUid());
                                 Map<String, Object> newUser = new HashMap<>();
                                 newUser.put("email", mAuth.getCurrentUser().getEmail());
-                                newUser.put("spotifyToken", "");
+                                newUser.put("refreshToken", "");
                                 db.collection("spotifyUsers").document(mAuth.getUid()).set(newUser)
                                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override

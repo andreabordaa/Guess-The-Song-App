@@ -38,7 +38,6 @@ android {
     }
 }
 
-
 dependencies {
 
     implementation(libs.appcompat)
@@ -49,6 +48,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    implementation("com.squareup.picasso:picasso:2.8")
 
     implementation("com.spotify.android:auth:1.2.5")
     implementation(platform("com.google.firebase:firebase-bom:34.3.0"))

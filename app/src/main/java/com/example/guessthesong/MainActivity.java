@@ -15,7 +15,8 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.firebase.auth.FirebaseAuth;
 import com.spotify.sdk.android.auth.AuthorizationResponse;
 
-public class MainActivity extends AppCompatActivity implements LoginFragment.LoginListener, CreateAccountFragment.CreateAccountListener, WelcomeFragment.WelcomeListener {
+public class MainActivity extends AppCompatActivity
+        implements LoginFragment.LoginListener, CreateAccountFragment.CreateAccountListener, WelcomeFragment.WelcomeListener, PlaylistViewFragment.PlaylistListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.Log
 
     @Override
     public void logout() {
+        Log.d("demo", "user has logged out");
         FirebaseAuth.getInstance().signOut();
         getSupportFragmentManager().beginTransaction().replace(R.id.main, new LoginFragment()).commit();
     }
