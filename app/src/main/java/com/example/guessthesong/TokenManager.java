@@ -2,6 +2,7 @@ package com.example.guessthesong;
 
 import android.app.DownloadManager;
 import android.util.Base64;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -26,6 +27,7 @@ public class TokenManager {
     OkHttpClient client = new OkHttpClient();
 
     public void refreshAccessToken(TokenCallback callback) {
+        Log.d("demo", "entering logic for token refreshing");
         if (refreshToken == null) {
             callback.onFailure(new Exception("No refresh token available"));
             return;
@@ -58,6 +60,7 @@ public class TokenManager {
                     try {
                         JSONObject jsonObject = new JSONObject(body);
                         accessToken = jsonObject.getString("access_token");
+                        Log.d("demo", "current access token: " + accessToken);
                         callback.onTokenReady(accessToken);
                     } catch (JSONException e) {
                         throw new RuntimeException(e);

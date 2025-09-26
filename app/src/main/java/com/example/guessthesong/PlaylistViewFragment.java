@@ -108,31 +108,37 @@ public class PlaylistViewFragment extends Fragment {
                                 @Override
                                 public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                                     String body = response.body().string();
-                                    try {
-                                        JSONObject jsonObject = new JSONObject(body);
-                                        JSONArray jsonArray = jsonObject.getJSONArray("items");
+                                    Log.d("demo", body);
 
-                                        for ( int i = 0; i < jsonArray.length(); i++) {
-                                            JSONObject playlistItem = jsonArray.getJSONObject(i);
-                                            String playlistName = playlistItem.getString("name");
-                                            String playlistImage = playlistItem.getJSONArray("images").getJSONObject(0).getString("url");
+                                    Log.d("demo", "about to get playlists ");
+                                    if (response.isSuccessful()) {
+                                        try {
+                                            JSONObject jsonObject = new JSONObject(body);
+                                            JSONArray jsonArray = jsonObject.getJSONArray("items");
 
-                                            Log.d("demo", "playlist name: " + playlistName);
-                                            Log.d("demo", "playlist image url: " + playlistImage);
+                                            for ( int i = 0; i < jsonArray.length(); i++) {
+                                                JSONObject playlistItem = jsonArray.getJSONObject(i);
+                                                String playlistName = playlistItem.getString("name");
 
-                                            Playlist playlist = new Playlist(playlistName, playlistImage);
-                                            playlists.add(playlist);
-                                        }
+                                                String playlistImage = playlistItem.getJSONArray("images").getJSONObject(0).getString("url");
 
-                                        getActivity().runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                adapter.notifyDataSetChanged();
+                                                Log.d("demo", "playlist name: " + playlistName);
+                                                Log.d("demo", "playlist image url: " + playlistImage);
+
+                                                Playlist playlist = new Playlist(playlistName, playlistImage);
+                                                playlists.add(playlist);
                                             }
-                                        });
 
-                                    } catch (JSONException e) {
-                                        throw new RuntimeException(e);
+                                            getActivity().runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    adapter.notifyDataSetChanged();
+                                                }
+                                            });
+
+                                        } catch (JSONException e) {
+                                            throw new RuntimeException(e);
+                                        }
                                     }
                                 }
                             });
